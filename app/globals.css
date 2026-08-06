@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  /* Light mode — Fluimix inspired: deep engineering navy + amber accent */
+  --background: 210 33% 98%;
+  --foreground: 213 45% 12%;
+  --surface: 0 0% 100%;
+  --surface-muted: 210 25% 96%;
+  --card: 0 0% 100%;
+  --border: 213 20% 88%;
+  --input: 213 20% 88%;
+  --ring: 210 65% 32%;
+
+  --primary: 210 68% 16%;
+  --primary-foreground: 0 0% 100%;
+
+  --accent: 38 62% 51%;
+  --accent-foreground: 213 45% 12%;
+
+  --muted: 210 20% 94%;
+  --muted-foreground: 213 15% 42%;
+}
+
+.dark {
+  --background: 213 47% 7%;
+  --foreground: 210 25% 94%;
+  --surface: 213 42% 10%;
+  --surface-muted: 213 38% 13%;
+  --card: 213 40% 11%;
+  --border: 213 30% 20%;
+  --input: 213 30% 20%;
+  --ring: 38 62% 51%;
+
+  --primary: 210 55% 60%;
+  --primary-foreground: 213 47% 8%;
+
+  --accent: 38 62% 55%;
+  --accent-foreground: 213 47% 8%;
+
+  --muted: 213 30% 16%;
+  --muted-foreground: 213 15% 65%;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 999px;
+}
+
+/* Focus visibility */
+:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.kanban-scroll {
+  scrollbar-gutter: stable;
+}
+
+.prose-doc h1 { font-size: 1.5rem; font-weight: 700; margin: 1.25rem 0 0.5rem; }
+.prose-doc h2 { font-size: 1.25rem; font-weight: 700; margin: 1.1rem 0 0.5rem; }
+.prose-doc h3 { font-size: 1.05rem; font-weight: 600; margin: 1rem 0 0.4rem; }
+.prose-doc p { margin: 0.5rem 0; line-height: 1.65; }
+.prose-doc ul { list-style: disc; padding-left: 1.4rem; margin: 0.5rem 0; }
+.prose-doc ol { list-style: decimal; padding-left: 1.4rem; margin: 0.5rem 0; }
+.prose-doc code { background: hsl(var(--muted)); padding: 0.1rem 0.35rem; border-radius: 0.3rem; font-size: 0.85em; }
+.prose-doc pre { background: hsl(var(--muted)); padding: 0.75rem; border-radius: 0.5rem; overflow-x: auto; }
+.prose-doc blockquote { border-left: 3px solid hsl(var(--accent)); padding-left: 0.75rem; color: hsl(var(--muted-foreground)); }
+.prose-doc a { color: hsl(var(--primary)); text-decoration: underline; }
