@@ -7,6 +7,7 @@ import { TaskBoard } from "@/components/tasks/task-board";
 import { TaskList } from "@/components/tasks/task-list";
 import { TaskDialog } from "@/components/tasks/task-dialog";
 import { NewProjectDialog } from "@/components/projects/new-project-dialog";
+import { EditProjectDialog } from "@/components/projects/edit-project-dialog";
 import { Card, Badge } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn, formatDueDate } from "@/lib/utils";
@@ -77,6 +78,7 @@ export function ProjectView({
               </div>
             </div>
           </div>
+          <EditProjectDialog project={project} />
         </div>
         {project.description && <p className="mt-3 max-w-3xl text-sm text-muted-foreground">{project.description}</p>}
       </div>
