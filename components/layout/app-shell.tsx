@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { GlobalSearch } from "@/components/search/global-search";
 import { Avatar } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { Profile } from "@/lib/types";
@@ -62,6 +63,7 @@ export function AppShell({
           Fluimix PM
         </Link>
         <div className="flex items-center gap-2">
+          <GlobalSearch />
           <ThemeToggle />
           <button
             aria-label="Open menu"
@@ -100,7 +102,8 @@ export function AppShell({
 
       <div className="flex min-h-screen flex-col">
         {/* Desktop top bar */}
-        <div className="hidden items-center justify-end gap-3 border-b border-border bg-surface px-6 py-3 lg:flex">
+        <div className="hidden items-center justify-between gap-3 border-b border-border bg-surface px-6 py-3 lg:flex">
+          <GlobalSearch className="w-72" />
           <ThemeToggle />
         </div>
         <main className="flex-1 px-4 py-5 sm:px-6 sm:py-6 lg:px-8">{children}</main>

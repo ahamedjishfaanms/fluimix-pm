@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useSearchParams, useRouter } from "next/navigation";
 import { ChevronRight, FolderKanban, LayoutGrid, List as ListIcon, Plus, BookOpen } from "lucide-react";
 import { TaskBoard } from "@/components/tasks/task-board";
 import { TaskList } from "@/components/tasks/task-list";
@@ -37,6 +38,21 @@ export function ProjectView({
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [editingTask, setEditingTask] = React.useState<Task | null>(null);
   const [defaultStatus, setDefaultStatus] = React.useState<TaskStatus>("todo");
+
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  React.useEffect(() => {
+    const taskId = searchParams.get("task");
+    if (!taskId) return;
+    const found = tasks.find((t) => t.id === taskId);
+    if (found) {
+      setEditingTask(found);
+      setDialogOpen(true);
+      router.replace(`/projects/${project.id}`, { scroll: false });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, tasks]);
 
   function openNew(status: TaskStatus) {
     setEditingTask(null);
