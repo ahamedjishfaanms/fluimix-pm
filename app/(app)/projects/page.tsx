@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Card, Badge } from "@/components/ui/card";
 import { NewProjectDialog } from "@/components/projects/new-project-dialog";
 import { GlobalNewTaskDialog } from "@/components/tasks/global-new-task-dialog";
+import { ImportExcelDialog } from "@/components/projects/import-excel-dialog";
 import { FolderKanban, ChevronRight } from "lucide-react";
 import { formatDueDate } from "@/lib/utils";
 
@@ -35,6 +36,7 @@ export default async function ProjectsPage() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <ImportExcelDialog currentUserId={user!.id} />
           <GlobalNewTaskDialog projects={allProjects || []} profiles={profiles || []} currentUserId={user!.id} />
           <NewProjectDialog />
         </div>
