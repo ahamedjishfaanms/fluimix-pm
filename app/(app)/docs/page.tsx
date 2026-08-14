@@ -50,7 +50,7 @@ export default async function DocsIndexPage() {
                 </div>
               </div>
               <span className="shrink-0 text-xs text-muted-foreground">
-                {new Date(d.updated_at).toLocaleDateString()}
+                {new Date(d.updated_at).toLocaleDateString("en-US")}
               </span>
             </Link>
           ))}

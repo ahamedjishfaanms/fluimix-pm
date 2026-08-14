@@ -37,6 +37,38 @@ export function TaskBoard({
   const [activeTask, setActiveTask] = React.useState<Task | null>(null);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
+  const topScrollRef = React.useRef<HTMLDivElement>(null);
+  const boardScrollRef = React.useRef<HTMLDivElement>(null);
+  const [contentWidth, setContentWidth] = React.useState(0);
+  const syncingRef = React.useRef<"top" | "board" | null>(null);
+
+  React.useEffect(() => {
+    function measure() {
+      if (boardScrollRef.current) setContentWidth(boardScrollRef.current.scrollWidth);
+    }
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [tasks]);
+
+  function handleTopScroll() {
+    if (syncingRef.current === "board") return;
+    syncingRef.current = "top";
+    if (boardScrollRef.current && topScrollRef.current) {
+      boardScrollRef.current.scrollLeft = topScrollRef.current.scrollLeft;
+    }
+    syncingRef.current = null;
+  }
+
+  function handleBoardScroll() {
+    if (syncingRef.current === "top") return;
+    syncingRef.current = "board";
+    if (boardScrollRef.current && topScrollRef.current) {
+      topScrollRef.current.scrollLeft = boardScrollRef.current.scrollLeft;
+    }
+    syncingRef.current = null;
+  }
+
   function handleDragStart(event: DragStartEvent) {
     const task = tasks.find((t) => t.id === event.active.id);
     setActiveTask(task || null);
@@ -62,7 +94,18 @@ export function TaskBoard({
 
   return (
     <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className="kanban-scroll flex gap-4 overflow-x-auto pb-4">
+      {/* Top scrollbar — mirrors the board below so you don't have to reach past a tall column to scroll sideways */}
+      <div
+        ref={topScrollRef}
+        onScroll={handleTopScroll}
+        className="mb-1.5 overflow-x-auto overflow-y-hidden"
+        style={{ height: 14 }}
+        aria-hidden
+      >
+        <div style={{ width: contentWidth, height: 1 }} />
+      </div>
+
+      <div ref={boardScrollRef} onScroll={handleBoardScroll} className="kanban-scroll flex gap-4 overflow-x-auto pb-4">
         {TASK_STATUSES.map((col) => (
           <Column
             key={col.value}
@@ -118,7 +161,7 @@ function Column({
       <div
         ref={setNodeRef}
         className={cn(
-          "flex min-h-[140px] flex-col gap-2 rounded-xl border border-dashed border-border bg-surface-muted/60 p-2 transition-colors",
+          "flex max-h-[calc(100vh-330px)] min-h-[140px] flex-col gap-2 overflow-y-auto rounded-xl border border-dashed border-border bg-surface-muted/60 p-2 transition-colors",
           isOver && "border-primary-400 bg-primary-50 dark:bg-primary-900/20"
         )}
       >

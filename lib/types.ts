@@ -62,6 +62,20 @@ export interface Document {
   updated_at: string;
 }
 
+export type NotificationType = "assigned" | "mentioned";
+
+export interface AppNotification {
+  id: string;
+  user_id: string;
+  type: NotificationType;
+  task_id: string | null;
+  project_id: string | null;
+  actor_id: string | null;
+  title: string;
+  read: boolean;
+  created_at: string;
+}
+
 export const TASK_STATUSES: { value: TaskStatus; label: string }[] = [
   { value: "backlog", label: "Backlog" },
   { value: "todo", label: "To Do" },

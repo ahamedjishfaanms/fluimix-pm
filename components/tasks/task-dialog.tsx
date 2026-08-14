@@ -47,6 +47,9 @@ export function TaskDialog({
 
   const [comments, setComments] = React.useState<TaskComment[]>([]);
   const [newComment, setNewComment] = React.useState("");
+  const [mentionedIds, setMentionedIds] = React.useState<string[]>([]);
+  const [mentionQuery, setMentionQuery] = React.useState<string | null>(null);
+  const commentInputRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
     if (task) {
@@ -66,6 +69,8 @@ export function TaskDialog({
       setAssigneeId("");
       setComments([]);
     }
+    setMentionedIds([]);
+    setMentionQuery(null);
     setError(null);
   }, [task, defaultStatus, open]);
 
@@ -137,9 +142,45 @@ export function TaskDialog({
       .insert({ task_id: task.id, author_id: currentUserId, body: newComment.trim() })
       .select()
       .single();
-    if (data) setComments((prev) => [...prev, data]);
+    if (data) {
+      setComments((prev) => [...prev, data]);
+      const uniqueMentions = Array.from(new Set(mentionedIds)).filter((id) => id !== currentUserId);
+      if (uniqueMentions.length > 0) {
+        await supabase.from("comment_mentions").insert(uniqueMentions.map((user_id) => ({ comment_id: data.id, user_id })));
+      }
+    }
     setNewComment("");
+    setMentionedIds([]);
+    setMentionQuery(null);
   }
+
+  function handleCommentChange(value: string) {
+    setNewComment(value);
+    const caret = commentInputRef.current?.selectionStart ?? value.length;
+    const beforeCaret = value.slice(0, caret);
+    const match = beforeCaret.match(/(?:^|\s)@([a-zA-Z][\w.-]*)$/);
+    setMentionQuery(match ? match[1] : null);
+  }
+
+  function selectMention(person: Profile) {
+    const value = newComment;
+    const caret = commentInputRef.current?.selectionStart ?? value.length;
+    const beforeCaret = value.slice(0, caret);
+    const afterCaret = value.slice(caret);
+    const replaced = beforeCaret.replace(/(?:^|\s)@([a-zA-Z][\w.-]*)$/, (m) => (m.startsWith(" ") ? " " : "") + `@${person.full_name || person.email.split("@")[0]} `);
+    setNewComment(replaced + afterCaret);
+    setMentionedIds((prev) => Array.from(new Set([...prev, person.id])));
+    setMentionQuery(null);
+    setTimeout(() => commentInputRef.current?.focus(), 0);
+  }
+
+  const mentionMatches = React.useMemo(() => {
+    if (mentionQuery === null) return [];
+    const q = mentionQuery.toLowerCase();
+    return profiles
+      .filter((p) => (p.full_name || p.email).toLowerCase().includes(q))
+      .slice(0, 6);
+  }, [mentionQuery, profiles]);
 
   return (
     <Dialog open={open} onClose={onClose} title={isEdit ? "Edit task" : "New task"} className="max-w-xl">
@@ -228,7 +269,7 @@ export function TaskDialog({
                     <div className="flex items-baseline justify-between gap-2">
                       <p className="text-xs font-medium text-foreground">{author?.full_name || author?.email}</p>
                       <p className="text-[10px] text-muted-foreground">
-                        {new Date(c.created_at).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                        {new Date(c.created_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                       </p>
                     </div>
                     <p className="mt-0.5 whitespace-pre-wrap text-sm text-foreground">{c.body}</p>
@@ -237,21 +278,42 @@ export function TaskDialog({
               );
             })}
           </div>
-          <div className="mt-3 flex gap-2">
+          <div className="relative mt-3 flex gap-2">
             <Input
+              ref={commentInputRef}
               value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Write a comment…"
+              onChange={(e) => handleCommentChange(e.target.value)}
+              placeholder="Write a comment… use @ to mention someone"
               onKeyDown={(e) => {
-                if (e.key === "Enter") {
+                if (e.key === "Enter" && mentionMatches.length === 0) {
                   e.preventDefault();
                   handleAddComment();
                 }
+                if (e.key === "Escape") setMentionQuery(null);
               }}
             />
             <Button type="button" size="icon" variant="outline" onClick={handleAddComment} aria-label="Send comment">
               <Send className="h-4 w-4" />
             </Button>
+
+            {mentionQuery !== null && mentionMatches.length > 0 && (
+              <div className="absolute bottom-full left-0 mb-1.5 w-64 overflow-hidden rounded-lg border border-border bg-card shadow-panel">
+                {mentionMatches.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => selectMention(p)}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-muted"
+                  >
+                    <Avatar size="xs" name={p.full_name} email={p.email} src={p.avatar_url} />
+                    <span className="truncate">
+                      <span className="font-medium text-foreground">{p.full_name || p.email.split("@")[0]}</span>{" "}
+                      <span className="text-xs text-muted-foreground">{p.email}</span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}

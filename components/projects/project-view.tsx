@@ -183,7 +183,7 @@ export function ProjectView({
                     {d.title}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    Updated {new Date(d.updated_at).toLocaleDateString()}
+                    Updated {new Date(d.updated_at).toLocaleDateString("en-US")}
                   </span>
                 </Link>
               ))}

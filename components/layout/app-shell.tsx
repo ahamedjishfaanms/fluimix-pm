@@ -17,6 +17,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { GlobalSearch } from "@/components/search/global-search";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 import { Avatar } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { Profile } from "@/lib/types";
@@ -64,6 +65,7 @@ export function AppShell({
         </Link>
         <div className="flex items-center gap-2">
           <GlobalSearch />
+          <NotificationBell currentUserId={profile.id} />
           <ThemeToggle />
           <button
             aria-label="Open menu"
@@ -104,7 +106,10 @@ export function AppShell({
         {/* Desktop top bar */}
         <div className="hidden items-center justify-between gap-3 border-b border-border bg-surface px-6 py-3 lg:flex">
           <GlobalSearch className="w-72" />
-          <ThemeToggle />
+          <div className="flex items-center gap-2">
+            <NotificationBell currentUserId={profile.id} />
+            <ThemeToggle />
+          </div>
         </div>
         <main className="flex-1 px-4 py-5 sm:px-6 sm:py-6 lg:px-8">{children}</main>
 
